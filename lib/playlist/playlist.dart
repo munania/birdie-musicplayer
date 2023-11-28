@@ -98,7 +98,6 @@
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
-import 'addSongScreen.dart';
 
 class Playlist {
   String name;
@@ -117,7 +116,7 @@ class PlaylistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Playlists'),
+        title: const Text('Playlists'),
       ),
       body: ListView.builder(
         itemCount: playlists.length,

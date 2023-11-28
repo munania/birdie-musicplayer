@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:musicplayer/homePage.dart';
-import 'package:musicplayer/settings.dart';
-import 'package:musicplayer/theme/theme_manager.dart';
+import 'package:musicplayer/views/albumsView.dart';
+import 'package:musicplayer/views/allSongsView.dart';
+import 'package:musicplayer/views/artistsView.dart';
+import 'package:musicplayer/views/foldersView.dart';
+import 'package:musicplayer/views/playListsView.dart';
+import 'package:musicplayer/widgets/bottomAppbar.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
-import 'constants/colors.dart';
-import 'musicList.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,7 +15,6 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-ThemeManager _themeManager = ThemeManager();
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   final OnAudioQuery _audioQuery = OnAudioQuery();
@@ -27,28 +27,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     checkAndRequestPermissions();
-    _themeManager.addListener(themeListener);
 
-    tabController = TabController(length: 3, vsync: this);
-
+    tabController = TabController(length: 6, vsync: this);
     tabController?.addListener(() {
       selectTab = tabController?.index ?? 0;
       setState(() {});
     });
-  }
-
-  @override
-  void dispose() {
-    _themeManager.addListener(themeListener);
-    super.dispose();
-  }
-
-  themeListener() {
-    if(mounted) {
-      setState(() {
-
-      });
-    }
   }
 
   checkAndRequestPermissions({bool retry = false}) async {
@@ -60,21 +44,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _hasPermission ? setState(() {}) : null;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          Switch(value: _themeManager.themeMode == ThemeMode.dark, onChanged: (newValue) {
-            _themeManager.toggleTheme(newValue);
-          })
-        ],
-        backgroundColor: AppColor.bg,
         elevation: 0,
         title: Row(
           children: [
-            const Text("Musically"),
+            Text("Birdie", style: Theme.of(context).textTheme.displayLarge),
             const SizedBox(
               width: 15,
             ),
@@ -82,104 +59,89 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               child: Container(
                 height: 38,
                 decoration: BoxDecoration(
-                  color: const Color(0xff292E4B),
                   borderRadius: BorderRadius.circular(19),
                 ),
                 child: TextField(
-                  controller: controller,
+                  // controller: controller,
                   decoration: InputDecoration(
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 20),
-                      prefixIcon: Container(
-                        margin: const EdgeInsets.only(left: 20),
-                        alignment: Alignment.centerLeft,
-                        width: 30,
-                        child: Image.asset(
-                          "assets/images/search.png",
-                          width: 20,
-                          height: 20,
-                          fit: BoxFit.contain,
-                          color: AppColor.primaryText28,
-                        ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.only(left: 20),
+                      alignment: Alignment.centerLeft,
+                      width: 30,
+                      child: Image.asset(
+                        "assets/images/search.png",
+                        width: 20,
+                        height: 20,
+                        fit: BoxFit.contain,
                       ),
-                      hintText: "Search album song",
-                      hintStyle: TextStyle(
-                        color: AppColor.primaryText28,
-                        fontSize: 13,
-                      )),
+                    ),
+                    hintText: "Search album song",
+                    hintStyle:
+                        Theme.of(context).textTheme.displaySmall?.copyWith(
+                              fontWeight: FontWeight.w300,
+                            ),
+                  ),
                 ),
               ),
             )
           ],
         ),
       ),
-      body: Center(
-        child: !_hasPermission
-            ? noAccessToLibraryWidget(): TabBarView(
-          controller: tabController,
-          children: const [
-            HomePage(),
-            MusicListScreen(),
-            SettingsView(),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(color: AppColor.bg, boxShadow: const [
-          BoxShadow(
-            color: Colors.black38,
-            blurRadius: 5,
-            offset: Offset(0, -3),
-          )
-        ]),
-        child: BottomAppBar(
-            color: Colors.transparent,
-            elevation: 0,
+      body: Column(
+        children: [
+          SizedBox(
+            height: kToolbarHeight - 15,
             child: TabBar(
               controller: tabController,
-              indicatorColor: Colors.transparent,
-              indicatorWeight: 1,
-              labelColor: AppColor.primary,
-              labelStyle: const TextStyle(fontSize: 10),
-              unselectedLabelColor: AppColor.primaryText28,
-              unselectedLabelStyle: const TextStyle(fontSize: 10),
-              tabs: [
+              indicatorPadding: const EdgeInsets.symmetric(horizontal: 20),
+              isScrollable: true,
+              labelStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+              tabs: const [
                 Tab(
-                  text: "Home",
-                  icon: Image.asset(
-                    selectTab == 0
-                        ? "assets/images/home_tab.png"
-                        : "assets/images/home_tab_un.png",
-                    width: 20,
-                    height: 20,
-                  ),
+                  text: "All Songs",
                 ),
                 Tab(
-                  text: "Songs",
-                  icon: Image.asset(
-                    selectTab == 1
-                        ? "assets/images/songs_tab.png"
-                        : "assets/images/songs_tab_un.png",
-                    width: 20,
-                    height: 20,
-                  ),
+                  text: "Playlists",
                 ),
                 Tab(
-                  text: "Settings",
-                  icon: Image.asset(
-                    selectTab == 2
-                        ? "assets/images/songs_tab.png"
-                        : "assets/images/setting_tab_un.png",
-                    width: 20,
-                    height: 20,
-                  ),
-                )
+                  text: "Albums",
+                ),
+                Tab(
+                  text: "Artists",
+                ),
+                Tab(
+                  text: "Genres",
+                ),
+                Tab(
+                  text: "Folders",
+                ),
               ],
-            )),
+            ),
+          ),
+          Expanded(
+              child: TabBarView(
+            controller: tabController,
+            children: const [
+              AllSongsView(),
+              PlayListsView(),
+              AlbumsView(),
+              ArtistsView(),
+              FoldersView(),
+              FoldersView(),
+            ],
+          ))
+        ],
       ),
+      bottomNavigationBar: const BottomBar(),
     );
   }
 
@@ -203,5 +165,4 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       ),
     );
   }
-
 }
